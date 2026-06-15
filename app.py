@@ -1,58 +1,55 @@
 import streamlit as st
-import google.generativeai as genai
+from google import genai
 
-# --------------------
+# ------------------------
 # PAGE CONFIG
-# --------------------
+# ------------------------
 st.set_page_config(
     page_title="SteelSense AI",
     layout="wide"
 )
 
-# --------------------
-# GEMINI SETUP
-# --------------------
+# ------------------------
+# GEMINI CLIENT
+# ------------------------
 try:
-    genai.configure(
+    client = genai.Client(
         api_key=st.secrets["GEMINI_API_KEY"]
     )
-
-    model = genai.GenerativeModel(
-        "gemini-1.5-flash"
-    )
-
 except Exception as e:
     st.error(f"Gemini Setup Error: {e}")
     st.stop()
 
-# --------------------
-# UI
-# --------------------
+# ------------------------
+# HEADER
+# ------------------------
 st.title("🏭 SteelSense AI")
-st.subheader(
-    "AI-Powered Maintenance Wizard for Steel Manufacturing Plants"
-)
+st.subheader("AI-Powered Maintenance Wizard for Steel Manufacturing Plants")
 
-# Sidebar
+# ------------------------
+# SIDEBAR
+# ------------------------
 st.sidebar.title("Plant Dashboard")
 st.sidebar.metric("Active Alerts", "3")
 st.sidebar.metric("Critical Assets", "1")
 st.sidebar.metric("Plant Risk", "HIGH")
 
-# Inputs
+# ------------------------
+# INPUTS
+# ------------------------
 equipment = st.text_input(
     "Equipment Name",
-    placeholder="Rolling Mill Motor"
+    value="Rolling Mill Motor"
 )
 
 fault = st.text_area(
     "Describe Fault",
-    placeholder="Abnormal vibration and overheating"
+    value="Abnormal vibration and overheating"
 )
 
 sensor = st.text_area(
     "Sensor Data",
-    placeholder="Temperature=110°C, Vibration=High"
+    value="Temperature=110°C, Vibration=High"
 )
 
 uploaded_file = st.file_uploader(
@@ -60,17 +57,13 @@ uploaded_file = st.file_uploader(
     type=["txt", "pdf"]
 )
 
-# --------------------
-# ANALYZE BUTTON
-# --------------------
+# ------------------------
+# ANALYZE
+# ------------------------
 if st.button("Analyze"):
 
-    with st.spinner("Analyzing equipment condition..."):
-
-        prompt = f"""
-You are a senior maintenance engineer working in a steel manufacturing plant.
-
-Analyze the following equipment issue.
+    prompt = f"""
+You are a senior maintenance engineer in a steel manufacturing plant.
 
 Equipment:
 {equipment}
@@ -81,42 +74,32 @@ Fault Description:
 Sensor Data:
 {sensor}
 
-Provide a detailed report in the following format:
+Provide:
 
-## Probable Fault
+1. Probable Fault
+2. Root Cause Analysis
+3. Risk Level (Low / Medium / High / Critical)
+4. Immediate Actions
+5. Long-Term Recommendations
+6. Spare Parts Recommendation
+7. Preventive Maintenance Suggestions
 
-## Root Cause Analysis
-
-## Risk Level
-(Low / Medium / High / Critical)
-
-## Immediate Actions
-
-## Long-Term Recommendations
-
-## Spare Parts Recommendation
-
-## Preventive Maintenance Suggestions
-
-## Maintenance Summary
+Format the response professionally.
 """
 
-        try:
+    try:
 
-            response = model.generate_content(
-                prompt
+        with st.spinner("Analyzing equipment condition..."):
+
+            response = client.models.generate_content(
+                model="gemini-2.0-flash",
+                contents=prompt
             )
 
-            st.success(
-                "Analysis Complete"
-            )
+            st.success("Analysis Complete")
 
-            st.markdown(
-                response.text
-            )
+            st.markdown(response.text)
 
-        except Exception as e:
+    except Exception as e:
 
-            st.error(
-                f"Analysis Error: {str(e)}"
-            )
+        st.error(f"Analysis Error: {e}")
