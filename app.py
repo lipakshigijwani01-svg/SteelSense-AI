@@ -1,17 +1,37 @@
 import streamlit as st
 import google.generativeai as genai
 
-# Page Setup
-st.set_page_config(page_title="SteelSense AI", layout="wide")
+# --------------------
+# PAGE CONFIG
+# --------------------
+st.set_page_config(
+    page_title="SteelSense AI",
+    layout="wide"
+)
 
-# Gemini Setup
-genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
+# --------------------
+# GEMINI SETUP
+# --------------------
+try:
+    genai.configure(
+        api_key=st.secrets["GEMINI_API_KEY"]
+    )
 
-model = genai.GenerativeModel("gemini-1.5-flash")
+    model = genai.GenerativeModel(
+        "gemini-1.5-flash"
+    )
 
+except Exception as e:
+    st.error(f"Gemini Setup Error: {e}")
+    st.stop()
+
+# --------------------
 # UI
+# --------------------
 st.title("🏭 SteelSense AI")
-st.subheader("AI-Powered Maintenance Wizard for Steel Plants")
+st.subheader(
+    "AI-Powered Maintenance Wizard for Steel Manufacturing Plants"
+)
 
 # Sidebar
 st.sidebar.title("Plant Dashboard")
@@ -40,19 +60,17 @@ uploaded_file = st.file_uploader(
     type=["txt", "pdf"]
 )
 
-# Analyze Button
+# --------------------
+# ANALYZE BUTTON
+# --------------------
 if st.button("Analyze"):
 
-    if not equipment or not fault:
-        st.warning("Please enter equipment details and fault description.")
-        st.stop()
-
-    with st.spinner("Analyzing equipment..."):
+    with st.spinner("Analyzing equipment condition..."):
 
         prompt = f"""
 You are a senior maintenance engineer working in a steel manufacturing plant.
 
-Analyze the following issue.
+Analyze the following equipment issue.
 
 Equipment:
 {equipment}
@@ -63,7 +81,7 @@ Fault Description:
 Sensor Data:
 {sensor}
 
-Provide your answer in this format:
+Provide a detailed report in the following format:
 
 ## Probable Fault
 
@@ -79,14 +97,26 @@ Provide your answer in this format:
 ## Spare Parts Recommendation
 
 ## Preventive Maintenance Suggestions
+
+## Maintenance Summary
 """
 
         try:
-            response = model.generate_content(prompt)
 
-            st.success("Analysis Complete")
+            response = model.generate_content(
+                prompt
+            )
 
-            st.markdown(response.text)
+            st.success(
+                "Analysis Complete"
+            )
+
+            st.markdown(
+                response.text
+            )
 
         except Exception as e:
-            st.error(f"Gemini Error: {str(e)}")
+
+            st.error(
+                f"Analysis Error: {str(e)}"
+            )
