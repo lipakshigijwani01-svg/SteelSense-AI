@@ -1,7 +1,8 @@
 import streamlit as st
+import google.generativeai as genai
+genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
 
-st.set_page_config(page_title="SteelSense AI", layout="wide")
-
+model = genai.GenerativeModel("gemini-2.5-flash")
 st.title("🏭 SteelSense AI")
 st.subheader("AI-Powered Maintenance Wizard for Steel Plants")
 
