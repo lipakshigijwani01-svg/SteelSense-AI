@@ -1,21 +1,33 @@
 import streamlit as st
 import google.generativeai as genai
+
+# Page Setup
+st.set_page_config(page_title="SteelSense AI", layout="wide")
+
+# Gemini Setup
 genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
 
-model = genai.GenerativeModel("gemini-2.5-flash")
+model = genai.GenerativeModel("gemini-1.5-flash")
+
+# UI
 st.title("🏭 SteelSense AI")
 st.subheader("AI-Powered Maintenance Wizard for Steel Plants")
 
+# Sidebar
 st.sidebar.title("Plant Dashboard")
 st.sidebar.metric("Active Alerts", "3")
 st.sidebar.metric("Critical Assets", "1")
 st.sidebar.metric("Plant Risk", "HIGH")
 
-equipment = st.text_input("Equipment Name")
+# Inputs
+equipment = st.text_input(
+    "Equipment Name",
+    placeholder="Rolling Mill Motor"
+)
 
 fault = st.text_area(
     "Describe Fault",
-    placeholder="Motor overheating and excessive vibration"
+    placeholder="Abnormal vibration and overheating"
 )
 
 sensor = st.text_area(
@@ -28,28 +40,53 @@ uploaded_file = st.file_uploader(
     type=["txt", "pdf"]
 )
 
+# Analyze Button
 if st.button("Analyze"):
 
-    prompt = f"""
-    You are a maintenance engineer in a steel manufacturing plant.
+    if not equipment or not fault:
+        st.warning("Please enter equipment details and fault description.")
+        st.stop()
 
-    Equipment: {equipment}
+    with st.spinner("Analyzing equipment..."):
 
-    Fault: {fault}
+        prompt = f"""
+You are a senior maintenance engineer working in a steel manufacturing plant.
 
-    Sensor Data:
-    {sensor}
+Analyze the following issue.
 
-    Provide:
+Equipment:
+{equipment}
 
-    1. Probable Fault
-    2. Root Cause Analysis
-    3. Risk Level (Low/Medium/High/Critical)
-    4. Immediate Actions
-    5. Long-Term Recommendations
-    6. Spare Parts Recommendation
-    """
+Fault Description:
+{fault}
 
-    response = model.generate_content(prompt)
+Sensor Data:
+{sensor}
 
-    st.markdown(response.text)
+Provide your answer in this format:
+
+## Probable Fault
+
+## Root Cause Analysis
+
+## Risk Level
+(Low / Medium / High / Critical)
+
+## Immediate Actions
+
+## Long-Term Recommendations
+
+## Spare Parts Recommendation
+
+## Preventive Maintenance Suggestions
+"""
+
+        try:
+            response = model.generate_content(prompt)
+
+            st.success("Analysis Complete")
+
+            st.markdown(response.text)
+
+        except Exception as e:
+            st.error(f"Gemini Error: {str(e)}")
