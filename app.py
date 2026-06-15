@@ -30,21 +30,26 @@ uploaded_file = st.file_uploader(
 
 if st.button("Analyze"):
 
-    st.success("Analysis Complete")
+    prompt = f"""
+    You are a maintenance engineer in a steel manufacturing plant.
 
-    st.markdown("""
-### Probable Fault
-Bearing Wear
+    Equipment: {equipment}
 
-### Risk Level
-CRITICAL
+    Fault: {fault}
 
-### Immediate Action
-Inspect bearing and lubrication system immediately.
+    Sensor Data:
+    {sensor}
 
-### Long-Term Recommendation
-Replace bearing and monitor vibration trend.
+    Provide:
 
-### Spare Parts Advice
-Procure replacement bearing within 7 days.
-""")
+    1. Probable Fault
+    2. Root Cause Analysis
+    3. Risk Level (Low/Medium/High/Critical)
+    4. Immediate Actions
+    5. Long-Term Recommendations
+    6. Spare Parts Recommendation
+    """
+
+    response = model.generate_content(prompt)
+
+    st.markdown(response.text)
