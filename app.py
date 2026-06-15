@@ -57,35 +57,13 @@ uploaded_file = st.file_uploader(
     type=["txt", "pdf"]
 )
 
-# ------------------------
 # ANALYZE
 # ------------------------
 if st.button("Analyze"):
 
     prompt = f"""
-You are a senior maintenance engineer in a steel manufacturing plant.
-
-Equipment:
-{equipment}
-
-Fault Description:
-{fault}
-
-Sensor Data:
-{sensor}
-
-Provide:
-
-1. Probable Fault
-2. Root Cause Analysis
-3. Risk Level (Low / Medium / High / Critical)
-4. Immediate Actions
-5. Long-Term Recommendations
-6. Spare Parts Recommendation
-7. Preventive Maintenance Suggestions
-
-Format the response professionally.
-"""
+    You are a senior maintenance engineer...
+    """
 
     try:
 
@@ -100,6 +78,6 @@ Format the response professionally.
 
             st.markdown(response.text)
 
-    except Exception as e:
+        except Exception as e:
 
-        st.error(f"Analysis Error: {e}")
+            st.error(f"Analysis Error: {e}")
