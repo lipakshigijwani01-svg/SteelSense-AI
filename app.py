@@ -30,4 +30,9 @@ equipment = st.text_input(
     value="Rolling Mill Motor"
 )
 
-fault = st.text
+fault = st.text_area(
+    "Describe Fault",
+    value="Abnormal vibration and overheating"
+)
+
+sensor = st.text
